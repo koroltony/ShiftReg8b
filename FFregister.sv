@@ -1,3 +1,4 @@
+//d flip flop (component of register)
 module FFregisterff (input wire a, clk, res, output reg qout);
     always @(posedge clk or posedge res) begin
         if (res == 1'b1)
@@ -9,7 +10,7 @@ endmodule
 
 module FFregister (input a, clk, res, output reg qout, output reg [7:0] outbit);
     wire [6:0] qin;
-    //series out after 8 clock cycles
+    //8 bit register that outputs bit "a" after 8 clock cycles (chained flip flops)
     FFregisterff bit1 (.a(a), .clk(clk), .res(res), .qout(qin[0]));
     FFregisterff bit2 (.a(qin[0]), .clk(clk), .res(res), .qout(qin[1]));
     FFregisterff bit3 (.a(qin[1]), .clk(clk), .res(res), .qout(qin[2]));
@@ -18,7 +19,7 @@ module FFregister (input a, clk, res, output reg qout, output reg [7:0] outbit);
     FFregisterff bit6 (.a(qin[4]), .clk(clk), .res(res), .qout(qin[5]));
     FFregisterff bit7 (.a(qin[5]), .clk(clk), .res(res), .qout(qin[6]));
     FFregisterff bit8 (.a(qin[6]), .clk(clk), .res(res), .qout(qout));
-    //parallel out
+    //parallel out 
     always @(qout) begin
         outbit[0] = qin[0];
         outbit[1] = qin[1];
