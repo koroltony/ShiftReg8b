@@ -23,19 +23,25 @@ int main(int argc, char** argv, char** env){
     top->clk = 0;
     top->a = 0;
     top->res = 0;
+    top->dir = 0;
 
-    printf("  time clock a res qout outbit\r\n");
+    printf("  time clock a dir res qout outbit\r\n");
 
 
 while (!Verilated::gotFinish()){
     top->clk = main_time % 2;
-    if ((main_time == 1)||(main_time==17)){
+    if (main_time == 23){
+        top->res = 1; 
+    }
+    else if (main_time < 15){
         top->a = 1;
         top->res = 0;
+        top->dir = 1;
     }
-    //checks asynchronous reset
-    else if ((main_time==12)){
-        top->res = 1;
+    else if (main_time < 30){
+        top->a = 0;
+        top->res = 0;
+        top->dir = 0;
     }
     else {
         top->a = 0;
@@ -43,9 +49,9 @@ while (!Verilated::gotFinish()){
     top->eval();
     m_trace->dump(main_time);
 //if outbit multiplies by 2 each cycle, the shift register is working correctly
-    printf("%5ld   %d    %d  %d   %d   %3d\r\n",main_time,top->clk,top->a,top->res,top->qout,top->outbit);
+    printf("%5ld   %d    %d  %d   %d   %d   %3d\r\n",main_time,top->clk,top->a,top->dir,top->res,top->qout,top->outbit);
 
-    if (main_time >= 32){
+    if (main_time >= 30){
         break;
     }
         main_time++;

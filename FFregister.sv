@@ -1,3 +1,5 @@
+/* verilator lint_off DECLFILENAME */
+
 //d flip flop (component of register)
 module FFregisterff (input wire a, clk, res, output reg qout);
     always @(posedge clk or posedge res) begin
@@ -8,26 +10,28 @@ module FFregisterff (input wire a, clk, res, output reg qout);
     end
 endmodule
 
-module FFregister (input a, clk, res, output reg qout, output reg [7:0] outbit);
-    wire [6:0] qin;
-    //8 bit register that outputs bit "a" after 8 clock cycles (chained flip flops)
-    FFregisterff bit1 (.a(a), .clk(clk), .res(res), .qout(qin[0]));
-    FFregisterff bit2 (.a(qin[0]), .clk(clk), .res(res), .qout(qin[1]));
-    FFregisterff bit3 (.a(qin[1]), .clk(clk), .res(res), .qout(qin[2]));
-    FFregisterff bit4 (.a(qin[2]), .clk(clk), .res(res), .qout(qin[3]));
-    FFregisterff bit5 (.a(qin[3]), .clk(clk), .res(res), .qout(qin[4]));
-    FFregisterff bit6 (.a(qin[4]), .clk(clk), .res(res), .qout(qin[5]));
-    FFregisterff bit7 (.a(qin[5]), .clk(clk), .res(res), .qout(qin[6]));
-    FFregisterff bit8 (.a(qin[6]), .clk(clk), .res(res), .qout(qout));
-    //parallel out 
-    always @(qout) begin
-        outbit[0] = qin[0];
-        outbit[1] = qin[1];
-        outbit[2] = qin[2];
-        outbit[3] = qin[3];
-        outbit[4] = qin[4];
-        outbit[5] = qin[5];
-        outbit[6] = qin[6];
-        outbit[7] = qout;
+module FFregister (input a, clk, res, input dir, output reg qout, output reg [7:0] outbit);
+
+  reg [7:0] qin = 8'b0;
+
+  always @(posedge clk or posedge res) begin
+    if (res)
+      qin <= 8'b0;
+    else begin
+      if (dir) begin // Right shift
+        qin <= {qin[6:0], a};
+        qout <= qin[7];
+      end else begin // Left shift
+        qin <= {a, qin[7:1]};
+        qout <= qin[0];
+      end
     end
+  end
+
+  always @(qin) begin
+    outbit = qin;
+  end
+
 endmodule 
+
+/* verilator lint_on DECLFILENAME */
