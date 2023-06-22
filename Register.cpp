@@ -5,6 +5,9 @@
 #include <verilated_vcd_c.h>
 #include <stdio.h>
 
+
+//Cpp testbench for verilator
+
 FFregister *top = NULL;
 vluint64_t main_time = 0;
 
@@ -14,6 +17,8 @@ double sc_time_stamp () {
 
 int main(int argc, char** argv, char** env){
     top = new FFregister;
+
+    //Code to create .vcd waveform
 
     Verilated::traceEverOn(true);
     VerilatedVcdC *m_trace = new VerilatedVcdC;
@@ -27,8 +32,10 @@ int main(int argc, char** argv, char** env){
 
     printf("  time clock a dir res qout outbit\r\n");
 
+//simple testbench input
 
 while (!Verilated::gotFinish()){
+    //set clock frequency as needed
     top->clk = main_time % 2;
     if (main_time == 23){
         top->res = 1; 
@@ -46,9 +53,12 @@ while (!Verilated::gotFinish()){
     else {
         top->a = 0;
     }
+
     top->eval();
     m_trace->dump(main_time);
-//if outbit multiplies by 2 each cycle, the shift register is working correctly
+
+    //output printed results as needed 
+
     printf("%5ld   %d    %d  %d   %d   %d   %3d\r\n",main_time,top->clk,top->a,top->dir,top->res,top->qout,top->outbit);
 
     if (main_time >= 30){
